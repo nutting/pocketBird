@@ -1,0 +1,10 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+const page=await browser.newPage({viewport:{width:1280,height:900}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(process.env.GAME_URL||'http://127.0.0.1:5173/?hour=12');await page.locator('[data-species="green"]').waitFor();await page.screenshot({path:'.test-results/01-aviary.png'});await page.locator('[data-species="green"]').click();
+for(let i=0;i<10;i++){await page.evaluate(()=>window.game.scene.getScene('Room').onBird());}
+await page.locator('#pet-name').fill('小春');await page.locator('#name-form button').click();await page.locator('[data-food="seed"]').click();assert.match(await page.locator('#top').innerText(),/小春/);await page.screenshot({path:'.test-results/02-room.png'});
+await page.locator('[data-nav="park"]').click();await page.evaluate(()=>{const w=window.game.scene.getScene('Room');const t=w.objects[0];t.emit('pointerdown');});await page.locator('#leave-park').click();assert.equal(await page.locator('.coins b').innerText(),'22');
+await page.locator('[data-nav="catch"]').click();await page.locator('#start-catch').click();await page.evaluate(()=>window.game.scene.getScene('Room').onCatch(15));await page.locator('#end-catch').click();assert.match(await page.locator('#bottom').innerText(),/获得 ◈ 5 金币/);await page.locator('#back-home').click();await page.reload();await page.locator('#rename').waitFor();assert.match(await page.locator('#top').innerText(),/小春/);
+await page.setViewportSize({width:390,height:844});await page.screenshot({path:'.test-results/03-mobile.png'});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);console.log('PASS: select → hatch → name → feed → park reward → catch reward → reload persistence; desktop/mobile layouts; no browser errors.');await browser.close();

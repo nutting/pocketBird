@@ -1,0 +1,4 @@
+let ctx:AudioContext|undefined;let muted=false;
+export function setMuted(value:boolean){muted=value;}
+export function unlock(){try{ctx??=new AudioContext();if(ctx.state==='suspended')void ctx.resume();}catch{/* Audio is optional on unsupported devices. */}}
+export function sound(kind='chirp',pitch=1300){if(muted||!ctx)return;const now=ctx.currentTime;const count=kind==='babble'?3:kind==='coin'?2:1;for(let i=0;i<count;i++){const o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='coin'?'sine':'triangle';o.frequency.setValueAtTime(kind==='crack'?180:pitch+i*190,now+i*.09);o.frequency.exponentialRampToValueAtTime(kind==='crack'?70:pitch*.65,now+i*.09+.13);g.gain.setValueAtTime(.0001,now+i*.09);g.gain.exponentialRampToValueAtTime(.065,now+i*.09+.015);g.gain.exponentialRampToValueAtTime(.0001,now+i*.09+.16);o.connect(g);g.connect(ctx.destination);o.start(now+i*.09);o.stop(now+i*.09+.18);}}
