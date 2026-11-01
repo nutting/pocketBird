@@ -56,4 +56,6 @@ node scripts/pwa-smoke.mjs
 
 把 `dist/` 部署到任意 HTTPS 静态托管，可添加到手机主屏幕。生产版才注册 Service Worker。存档不跨设备同步；浏览器清理数据会删除本地存档。未做 Capacitor、Tauri 或微信小游戏移植。
 
-GitHub Pages 使用 `gh-pages` 分支根目录发布，目标地址为 https://nutting.github.io/pocketBird/ 。仓库 Settings → Pages 中选择 Deploy from a branch → gh-pages → /(root)。`.github/workflows/pages.yml` 会在推送 main 时执行测试、构建并更新发布分支；不需要额外密钥。手动发布：先执行 `npm run build`，再运行 `bash scripts/publish-pages.sh`。发布脚本使用临时 Git index 保留源码和现有暂存区，并在已有发布提交上追加历史。
+GitHub Pages 目标地址为 https://nutting.github.io/pocketBird/ 。仓库 Settings → Pages 中选择 **GitHub Actions** 作为 Source；在 Actions 中运行 Publish Pocket Bird，后续每次推送 main 都会自动测试、构建并使用 GitHub 官方 Pages Actions 部署，不需要额外密钥。首次启用 Pages 需要仓库管理权限。
+
+另保留一份构建好的 `gh-pages` 分支作为手动发布备选。如果采用分支发布，可在 Pages 选择 Deploy from a branch → gh-pages → /(root)。手动更新分支：`npm run build && bash scripts/publish-pages.sh`。该脚本使用临时 Git index 保留源码和现有暂存区，并在已有发布提交上追加历史。
